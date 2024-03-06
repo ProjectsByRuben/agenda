@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <!-- Configuración del tipo de contenido y conjunto de caracteres -->
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+        <!-- Enlaces a los archivos de estilo y scripts de Bootstrap -->
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+        
+        <!-- Título de la página -->
+        <title>Gabinete Médico - Centro ......</title>
+    
+        <!-- Estilos personalizados -->
+        <style>
+            /* Estilos para los botones de ver datos y añadir paciente */
+            .btn-ver-datos {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+    
+            .btn-anadir-paciente {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+    
+            /* Estilos para el tamaño máximo del modal */
+            .modal-dialog {
+                max-width: 45%;
+            } 
+        </style>
+    </head>
+    
+<body>
+    <a href="index.php">Volver</a>
+    <!-- Contenedor principal -->
+<div class="container">
+    <br><br>
+    <!-- Panel principal -->
+    <div class="panel panel-primary">
+        <!-- Encabezado del panel -->
+        <div class="panel-heading text-center">
+            <h2>Listado Pacientes</h2>
+        </div>
+        <!-- Tabla de listado de pacientes -->
+        <table class="table table-striped">
+            <thead>
+                <!-- Encabezados de la tabla -->
+                <tr>
+                    <th class="small">DNI</th>
+                    <th class="small">Nombre</th>
+                    <th class="small">Apellidos</th>
+                    <th class="small">Género</th>
+                    <th class="small">Fecha</th>
+                    <th class="small">Email</th>
+                    <th class="small">Dirección</th>
+                    <th class="small">Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Formulario para agregar pacientes -->
+                <form method="get" id="formulario">
+                    <tr>
+                        <!-- Celdas con campos de entrada -->
+                        <td><input type="text" name="dni" id="dni" size="8" class="form-control form-control-sm"></td>
+                        <input type="hidden" name="dni_old" id="dni_old" size="1" class="form-control form-control-sm">
+                        <td><input type="text" name="nombre" id="nombre" size="8" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="apellidos" id="apellidos" size="8" class="form-control form-control-sm"></td>
+                        <td>
+                            <select name="genero" id="genero" class="form-control form-control-sm">
+                                <!-- Opciones del campo de género -->
+                                <option value="femenino">Femenino</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="No Binario">No Binario</option>
+                            </select>
+                        </td>
+                        <td><input type="date" name="fecha" id="fecha" size="8" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="email" id="email" size="8" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="direccion" id="direccion" size="8" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="telefono" id="telefono" size="8" class="form-control form-control-sm"></td>
+                        <!-- Botón para añadir paciente -->
+                        <td><button type="submit" name="submit" value="Añadir" id="boton" class="btn btn-dark btn-anadir-paciente">
+                            <span class="glyphicon glyphicon-plus"></span>Añadir Paciente
+                          </button></td>
+                        <td></td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+        <!-- Párrafo para mostrar información (puede usarse como consola de mensajes) -->
+        <p id="demo"></p>
+    </div>
+    <!-- Pie de página -->
+    <div class="text-center">&copy; Centro Don Bosco</div>
+</div>
+
+<!---------------------------------------------------------------------------------------------------------------------------------->
+    <!-- Modal de Confirmación -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Confirmación
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body">
+                <!-- Los datos pasados se muestran en esta parte del cuerpo del modal -->
+                <h6 id="modal_body"></h6>
+                <!-- Botón de Confirmación -->
+                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#exampleModal" id="submit2">
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+      
+        const formu = document.getElementById('formulario')
+        console.log(formu)
+        let usuariodni = document.getElementById('dni')
+        let usuariodni_old = document.getElementById('dni_old')
+        let usuarionombre = document.getElementById('nombre')
+        let usuarioapellidos = document.getElementById('apellidos')
+        let usuariogenero = document.getElementById('genero')
+        let usuariofecha = document.getElementById('fecha')
+        let usuarioemail = document.getElementById('email')
+        let usuariodireccion = document.getElementById('direccion')
+        let usuariotelefono = document.getElementById('telefono')
+  
+        formu.addEventListener('submit',validarFormulario)
+  
+        const urlObtenerUsuario = 'http://agenda.localhost/api2/obtenerUsuario.php'
+        const urlObtenerCita = 'http://agenda.localhost/api2/obtenerCita.php'
+        const urlAgregarUsuario = 'http://agenda.localhost/api2/agregarUsuario.php'
+        const urlEditarUsuario = 'http://agenda.localhost/api2/editarUsuario.php'
+        const urlBorrarUsuario = 'http://agenda.localhost/api2/borrarUsuario.php'
+  
+        let listaEmpleados = []
+        let editando = false
+  
+        const objEmpleado = {
+          dni: '',
+          dni_old: '',
+          nombre: '',
+          apellidos: '',
+          genero: '',
+          fecha: '',
+          email: '',
+          direccion: '',
+          telefono: ''
+        }
+
+        const cita = {
+            id_cita: '',
+            fecha_cita: '',
+            hora_inicio: '',
+            hora_fin: '',
+            tipo_cita: '',
+            facturada: '',
+            comentario: '',
+            dni: ''
+          }
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+          //FUNCION PARA OBTENER LOS EMPLEADOS
+          async function obtenerEmpleados() {
+            try {
+                // Realiza una solicitud GET al servidor para obtener la lista de empleados
+                const res = await fetch(urlObtenerUsuario, {
+                    method: 'GET',
+                });
+        
+                // Convierte la respuesta a formato JSON
+                listaEmpleados = await res.json();
+        
+                console.log(listaEmpleados);
+        
+                // Obtiene las claves (keys) del objeto listaEmpleados
+                let keysinobj = Object.keys(listaEmpleados);
+        
+                // Obtiene el elemento con id 'demo'
+                parrafo = document.getElementById("demo");
+        
+                // Inicializa la cadena HTML
+                cadena = "";
+        
+                // Verifica si no hay empleados en la base de datos
+                if (keysinobj.length == 0) {
+                    cadena = "<h3>No Hay Pacientes en la BBDD</h3>";
+                    parrafo.innerHTML = cadena;
+                } else {
+
+                    // Título de la tabla
+                        cadena += "<tr>"
+                            + "<th colspan=\"9\" class=\"text-center\">Pacientes</th>"
+                            + "</tr>";
+
+                        // Encabezados de la tabla
+                        cadena += "<tr>"
+                            + "<th class=\"small\">DNI</th>"
+                            + "<th class=\"small\">Nombre</th>"
+                            + "<th class=\"small\">Apellidos</th>"
+                            + "<th class=\"small\">Género</th>"
+                            + "<th class=\"small\">Fecha</th>"
+                            + "<th class=\"small\">Email</th>"
+                            + "<th class=\"small\">Dirección</th>"
+                            + "<th class=\"small\">Teléfono</th>"
+                            + "</tr>";
+
+                    // Itera sobre la lista de empleados y construye la tabla HTML
+                    listaEmpleados.forEach(empleado => {
+                        cadena += "<tr>"
+                            + "<td style='font-size: 15px;'>" + empleado.dni + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.nombre + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.apellidos + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.genero + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.fecha + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.email + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.direccion + "</td>"
+                            + "<td style='font-size: 15px;'>" + empleado.telefono + "</td>"
+                            + "<td><button onclick=\"obtenerCita('" 
+                            + empleado.dni + "','" 
+                            + empleado.nombre + "','" 
+                            + empleado.apellidos + "')\" class=\"btn-ver-datos btn btn-dark btn-sm\" data-toggle=\"modal\" data-target=\"#exampleModal\" id=\"submitVerDatos\">Ver Citas</button></td>"
+                            + "<td><button onclick=\"eliminarEmpleado('" + empleado.dni + "')\" class=\"btn btn-dark btn-sm\">Eliminar</button></td>"
+                            + "<td><button onclick=\"cargarEmpleado('"
+                            + empleado.dni + "','"
+                            + empleado.nombre + "','"
+                            + empleado.apellidos + "','"
+                            + empleado.genero + "','"
+                            + empleado.fecha + "','"
+                            + empleado.email + "','"
+                            + empleado.direccion + "','"
+                            + empleado.telefono + "')\" class=\"btn btn-dark btn-sm\">Modificar</button></td>"
+                            + "<td><a href='expediente.php?dni="
+                            + empleado.dni + "' class='btn btn-dark btn-sm'>Expediente</a></td>"
+                            + "<td><button onclick=\"facturarEmpleado('" + empleado.dni + "')\" class=\"btn btn-dark btn-sm\">Facturar</button></td>"
+                            + "</tr>";
+                    });
+                    // Construcción de la tabla HTML completa
+                    cadena2 = "<table class= \"table table-striped\">" + cadena + "</table>";
+                    // Inserta la tabla en el elemento con id 'demo'
+                    parrafo.innerHTML = cadena2;
+                }
+            } catch (error) {
+                // Maneja cualquier error que pueda ocurrir durante la ejecución
+                console.log(error);
+            }
+        }
+
+//----------------------------------------------------------------------------------------------------------//
+    function facturarEmpleado(dni) {
+        // Redirigir a facturar.php con el DNI como parámetro
+        window.location.href = 'facturar.php?dni=' + dni;
+    }
+
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION PARA OBTENER LAS CITAS
+        async function obtenerCita(dni, nom) {
+            try {
+                // Realiza una solicitud al servidor para obtener las citas del usuario.
+                const response = await fetch(urlObtenerCita, {
+                    method: 'POST', // Método de la solicitud POST
+                    headers: {
+                        'Content-Type': 'application/json', // Tipo de contenido JSON
+                    },
+                    body: JSON.stringify({ idUsuario: dni }), // Cuerpo de la solicitud: DNI del usuario
+                });
+
+                // Verifica si la respuesta del servidor fue exitosa (código de estado 200).
+                if (!response.ok) {
+                    throw new Error('Error al obtener citas'); // Lanza un error si no fue exitosa.
+                }
+
+                // Convierte la respuesta a formato JSON.
+                const citas = await response.json();
+
+                // Ahora, puedes mostrar las citas en el modal.
+                let modalBody = document.getElementById('modal_body');
+                modalBody.innerHTML = ''; // Limpiar el contenido actual del modal.
+
+                // Crear elementos de la tabla y el cuerpo
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                // Agrega el <thead> una sola vez
+                thead.innerHTML = `
+                    <tr>
+                        <th>ID Cita</th>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Comentario</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                // Itera sobre cada cita y agrega la información al cuerpo de la tabla.
+    citas.forEach(cita => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${cita.id_cita}</td>
+                <td>${nom}</td>
+                <td>${dni}</td>
+                <td>${cita.fecha_cita}</td>
+                <td>${cita.tipo_cita}</td>
+                <td>${cita.comentario}</td> <!-- Agrega el comentario a la tabla -->
+            </tr>
+        `;
+    });
+
+                // Estilos CSS para la tabla
+                table.classList.add('table', 'table-bordered', 'table-hover');
+                thead.classList.add('thead-dark');
+
+                // Añade sombreado a las filas al pasar el ratón
+                tbody.addEventListener('mouseover', function (event) {
+                    const target = event.target;
+                    if (target.tagName === 'TD') {
+                        target.parentNode.classList.add('table-active');
+                    }
+                });
+
+                tbody.addEventListener('mouseout', function (event) {
+                    const target = event.target;
+                    if (target.tagName === 'TD') {
+                        target.parentNode.classList.remove('table-active');
+                    }
+                });
+
+                // Adjunta el cuerpo de la tabla al elemento table
+                table.appendChild(tbody);
+
+                // Adjunta la tabla al cuerpo del modal
+                modalBody.appendChild(table);
+
+                // Muestra el modal.
+                $('#exampleModal').modal('show');
+            } catch (error) {
+                // Maneja cualquier error que ocurra durante el proceso.
+                console.error(error);
+                alert('Error al obtener citas');
+            }
+        }
+        
+//---------------------------------------------------------------------------------------------------------------------------------// 
+        //FUNCION PARA VALIDAR EL FORMULARIO
+        function validarFormulario(evt) {
+            // Previene el comportamiento por defecto del evento (enviar el formulario)
+            evt.preventDefault();
+        
+            // Verifica si alguno de los campos del formulario está vacío
+            if ([usuariodni.value, usuarionombre.value, usuarioapellidos.value, usuariogenero.value,
+                usuariofecha.value, usuarioemail.value, usuariodireccion.value, usuariotelefono.value].includes('')) {
+                // Si hay campos vacíos, muestra una alerta y retorna
+                alert('Todos los campos son obligatorios');
+                return;
+            }
+        
+            // Asigna los valores de los campos del formulario al objeto objEmpleado
+            objEmpleado.dni = usuariodni.value;
+            objEmpleado.dni_old = usuariodni_old.value;
+            objEmpleado.nombre = usuarionombre.value;
+            objEmpleado.apellidos = usuarioapellidos.value;
+            objEmpleado.genero = usuariogenero.value;
+            objEmpleado.fecha = usuariofecha.value;
+            objEmpleado.email = usuarioemail.value;
+            objEmpleado.direccion = usuariodireccion.value;
+            objEmpleado.telefono = usuariotelefono.value;
+        
+            // Muestra en la consola el estado de la variable 'editando'
+            console.log(editando);
+        
+            // Muestra una alerta con el valor de la variable 'editando'
+            alert(editando);
+        
+            // Verifica si se está editando un empleado
+            if (editando) {
+                // Llama a la función editarEmpleado y cambia el valor de 'editando' a false
+                editarEmpleado();
+                editando = false;
+            } else {
+                // Si no se está editando, llama a la función agregarEmpleado para agregar un nuevo empleado
+                agregarEmpleado();
+            }
+        }        
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION DE AGREGAR EMPLEADO
+        async function agregarEmpleado() {
+            // Comentario: Muestra un mensaje de alerta con el objeto objEmpleado
+            alert(objEmpleado);
+        
+            // Comentario: Imprime el objeto objEmpleado en la consola
+            console.log(objEmpleado);
+        
+            try {
+                // Comentario: Realiza una solicitud POST al servidor usando fetch
+                const res = await fetch(urlAgregarUsuario, {
+                    method: 'POST',
+                    body: JSON.stringify(objEmpleado)
+                });
+        
+                // Comentario: Lanza una excepción si la respuesta no es exitosa (código de estado 200)
+                if (!res.ok) {
+                    throw { ok: false, msg: "error 404" };
+                }
+        
+                // Comentario: Imprime la respuesta en la consola
+                console.log(res);
+        
+                // Comentario: Parsea la respuesta como JSON
+                const data = await res.json();
+        
+                // Comentario: Imprime diferentes propiedades del objeto JSON
+                console.log(data.msg1);
+                console.log(data.msg2);
+                console.log(data.msg3);
+        
+                // Comentario: Recorre todas las propiedades del objeto JSON e imprime sus claves y valores
+                for (const key in data) {
+                    console.log(key);
+                    console.log(data[key]);
+                }
+        
+                // Comentario: Muestra un mensaje de alerta indicando que el registro fue exitoso
+                alert('Se registró exitosamente');
+        
+                // Comentario: Limpia el contenido HTML, obtiene y muestra los empleados actualizados
+                limpiarHTML();
+                obtenerEmpleados();
+        
+                // Comentario: Reinicia el formulario y limpia el objeto empleado
+                formulario.reset();
+                limpiarObjeto();
+        
+            } catch (error) {
+                // Comentario: Captura y maneja cualquier error que ocurra durante el proceso
+                console.log(error);
+            } finally {
+                // Comentario: Bloque de código que se ejecuta siempre, independientemente de si hay errores o no
+                // console.log("Estoy en el finally de agregar empleado");
+            }
+        }
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION PARA EDITAR EMPLEADO
+        async function editarEmpleado() {
+            // Muestra un mensaje de alerta
+            alert("Estoy en editar empleado");
+        
+            try {
+                // Realiza una solicitud POST al servidor usando fetch
+                const res = await fetch(urlEditarUsuario, {
+                    method: 'POST',
+                    body: JSON.stringify(objEmpleado)
+                });
+        
+                // Convierte la respuesta a formato JSON
+                const data = await res.json();
+        
+                // Verifica si hay un mensaje 'OK' en la respuesta
+                if (data.msg === 'OK') {
+                    // Muestra un mensaje de alerta
+                    alert('Se actualizó correctamente');
+        
+                    // Limpia el contenido HTML
+                    limpiarHTML();
+        
+                    // Obtiene la lista de empleados actualizada
+                    obtenerEmpleados();
+        
+                    // Resetea el formulario
+                    formulario.reset();
+        
+                    // Limpia el objeto empleado
+                    limpiarObjeto();
+                }
+            } catch (error) {
+                // Muestra un mensaje de alerta en caso de error
+                alert(error);
+            }
+        
+            // Modifica el contenido del elemento con id 'boton'
+            document.getElementById('boton').innerHTML = '<span class="glyphicon glyphicon-plus"></span>Añadir Paciente';
+        
+            // Cambia la variable 'editando' a false
+            editando = false;
+        }
+        
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION PARA CARGAR EMPLEADO
+        function cargarEmpleado(id, nom, ape, gen, fec, ema, dire, tfno) {
+            // Asigna los valores recibidos a los campos del formulario
+            usuariodni.value = id;
+            usuariodni_old.value = id;
+            usuarionombre.value = nom;
+            usuarioapellidos.value = ape;
+            usuariogenero.value = gen;
+            usuariofecha.value = fec;
+            usuarioemail.value = ema;
+            usuariodireccion.value = dire;
+            usuariotelefono.value = tfno;
+        
+            // Asigna los valores al objeto empleado
+            objEmpleado.dni = id;
+        
+            // Cambia el estado de la variable 'editando' a true
+            editando = true;
+        
+            // Muestra un mensaje de alerta indicando que 'editando' ahora es true
+            alert("Editando vale: " + editando);
+        
+            // Cambia el texto del elemento con id 'boton' a 'Actualizar'
+            document.getElementById('boton').textContent = 'Actualizar';
+        }
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION PARA LIMPIAR EL HTML
+        function limpiarHTML() {
+            // Selecciona el elemento con id 'demo'
+            const divEmpleados = document.querySelector('#demo');
+        
+            // Mientras haya hijos en el elemento 'divEmpleados', se eliminan uno a uno
+            while (divEmpleados.firstChild) {
+                divEmpleados.removeChild(divEmpleados.firstChild);
+            }
+        }
+
+//---------------------------------------------------------------------------------------------------------------------------------//
+        // FUNCION PARA LIMPIAR ESOS OBJETOS
+        function limpiarObjeto() {
+            // Establece las propiedades del objeto objEmpleado en cadenas vacías
+            objEmpleado.idUsuario = '';
+            objEmpleado.usuario = '';
+            objEmpleado.contrasena = '';
+            objEmpleado.email = '';
+        }
+        
+//---------------------------------------------------------------------------------------------------------------------------------//
+        //FUNCION PARA ELIMINAR EMPLEADOS
+        async function eliminarEmpleado(id) {
+            // Muestra un cuadro de confirmación al usuario
+            let confirmar = confirm("¿Confirma el borrado del paciente con DNI: " + id + "?");
+        
+            // Si el usuario confirma la eliminación
+            if (confirmar == true) {
+                try {
+                    // Realiza una solicitud POST al servidor para borrar el usuario con el ID especificado
+                    const res = await fetch(urlBorrarUsuario, {
+                        method: 'POST',
+                        body: JSON.stringify({'idUsuario': id})
+                    });
+        
+                    // Convierte la respuesta a formato JSON
+                    const data = await res.json();
+        
+                    // Verifica si el mensaje ('msg') en la respuesta es 'OK'
+                    if (data.msg === 'OK') {
+                        // Muestra un mensaje de alerta indicando que se borró exitosamente
+                        alert('Se borró exitosamente');
+        
+                        // Limpia el contenido HTML
+                        limpiarHTML();
+        
+                        // Obtiene la lista actualizada de empleados
+                        obtenerEmpleados();
+        
+                        // Limpia el objeto empleado
+                        limpiarObjeto();
+                    }
+                } catch (error) {
+                    // Muestra un mensaje de alerta en caso de error
+                    alert(error);
+                }
+            }
+        }
+  obtenerEmpleados()
+        </script>
+</body>
+</html>
